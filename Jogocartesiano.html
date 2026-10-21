@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha Cartesiana - Modo Aprendizagem</title>
+    <style>
+        /* ===== ESTILOS (mesmos do seu código) ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fff #000000);
+            color: rgb(0, 0, 0);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 950px;
+            width: 100%;
+            background: rgba(233, 237, 242, 1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(170, 170, 170, 0.308);
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #000000;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .subtitle {
+            text-align: center;
+            color: #035be9;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .game-status {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            background: rgb(0, 109, 233);
+            min-height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .badge-aluno { background: #2ecc71; color: #000000; }
+        .badge-computador { background: #e74c3c; color: #080808; }
+        .badge-empate { background: #f1c40f; color: #000; }
+        .badge-pensando { background: #3498db; color: #000; }
+        .badge-info { background: #8e44ad; color: #000; }
+        .badge-success { background: #2ecc71; color: #000; }
+        .badge-warning { background: #f39c12; color: #000; }
+        .badge-danger { background: #e74c3c; color: #000; }
+
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 850px) {
+            .game-layout { grid-template-columns: 1fr; }
+        }
+
+        .board-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #cartesianCanvas {
+            background: #fff;
+            border-radius: 18px;
+            border: 2px solid #f3f2f2;
+            cursor: pointer;
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 1/1;
+            touch-action: none;
+            transition: all 0.3s;
+        }
+        #cartesianCanvas:hover {
+            border-color: #000000;
+            box-shadow: 0 0 30px rgb(7, 7, 7);
+        }
+        #cartesianCanvas.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        #cartesianCanvas.clique-bloqueado {
+            cursor: not-allowed;
+         
+            border-color: #8e44ad;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-item .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+        .dot-aluno { background: #2ecc71; }
+        .dot-computador { background: #e74c3c; }
+        .dot-empty { background: transparent; border: 2px dashed #445588; }
+        .dot-bloqueado { background: #8e44ad; border-color: #8e44ad; }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .info-card {
+            background: rgba(3, 91, 233);
+            border-radius: 15px;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .info-card h3 {
+            font-size: 0.85rem;
+            color: #030303;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .info-card .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 15px;
+        }
+        .info-card .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(10, 10, 10, 0.959);
+            font-size: 0.9rem;
+        }
+        .info-card .info-item .label { color: #000000; }
+        .info-card .info-item .value { color: #fff; font-weight: 600; }
+
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            padding: 8px;
+            background: rgba(0, 20, 50, 0.3);
+            border-radius: 12px;
+            flex-wrap: wrap;
+        }
+        .score-item { text-align: center; }
+        .score-item .label {
+            font-size: 0.7rem;
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .score-item .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .score-item .value.aluno { color: #2ecc71; }
+        .score-item .value.computador { color: #e74c3c; }
+        .score-item .value.empate { color: #f1c40f; }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 0;
+        }
+        .input-area label {
+            color: #000000;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .input-area input {
+            padding: 8px 14px;
+            border: 2px solid #2a4a7a;
+            border-radius: 30px;
+            background: #0a1428;
+            color: white;
+            font-size: 1rem;
+            width: 140px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .input-area input:focus {
+            outline: none;
+            border-color: #4a7aaa;
+            box-shadow: 0 0 20px rgba(58, 123, 213, 0.2);
+        }
+        .input-area input:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ===== ESTILOS DO SISTEMA DE CHAVE ===== */
+        .chave-area {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 20, 50, 0.3);
+            padding: 8px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .chave-area label {
+            color: #000000;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        .chave-area input {
+            padding: 4px 12px;
+            border: 2px solid #2a4a7a;
+            border-radius: 20px;
+            background: #0a1428;
+            color: white;
+            font-size: 0.85rem;
+            width: 120px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .chave-area input:focus {
+            outline: none;
+            border-color: #4a7aaa;
+            box-shadow: 0 0 15px rgba(58, 123, 213, 0.2);
+        }
+        .chave-area input.correto {
+            border-color: #2ecc71;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.2);
+        }
+        .chave-area input.errado {
+            border-color: #e74c3c;
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.2);
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .btn-secondary { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; }
+        .btn-purple { background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; }
+        .btn-pink { background: linear-gradient(135deg, #e84393, #c2185b); color: white; }
+        .btn-gray { background: linear-gradient(135deg, #555, #333); color: #aaa; cursor: not-allowed; opacity: 0.5; }
+        .btn-gray:hover { transform: none !important; box-shadow: none !important; }
+
+        .btn:hover {
+            transform: scale(1.04);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .coords-hint {
+            text-align: center;
+            color: #5a7a9a;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            min-height: 24px;
+        }
+        .exemplo-coord {
+            color: #5a7a9a;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .exemplo-coord span {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin: 0 4px;
+            font-family: 'Courier New', monospace;
+            color: #000000;
+        }
+
+        .progresso-vitorias {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 5px 0;
+        }
+        .progresso-vitorias .estrela {
+            font-size: 1.5rem;
+            opacity: 0.2;
+            transition: all 0.5s;
+        }
+        .progresso-vitorias .estrela.ativa {
+            opacity: 1;
+            color: #f1c40f;
+            text-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
+        }
+
+        .controles {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .quadrante-alvo {
+            text-align: center;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: rgba(0, 20, 50, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .historico-lista {
+            max-height: 60px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .historico-lista .h-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .historico-lista .h-item.acerto { border-left: 3px solid #2ecc71; }
+        .historico-lista .h-item.erro { border-left: 3px solid #e74c3c; }
+        .historico-lista .h-item.passou { border-left: 3px solid #f39c12; }
+
+        .historico-lista::-webkit-scrollbar { width: 4px; }
+        .historico-lista::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+        .historico-lista::-webkit-scrollbar-thumb { background: #4a7aaa; border-radius: 4px; }
+
+        /* ===== INDICADOR DE SESSÃO DO INSTRUTOR ===== */
+        .instrutor-indicador {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(5, 5, 5, 0.1);
+        }
+        .instrutor-indicador.ativo {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: #2ecc71;
+            color: #2ecc71;
+        }
+        .instrutor-indicador.inativo {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.3rem; }
+            .game-status { font-size: 0.95rem; padding: 8px; min-height: 50px; }
+            .btn { padding: 6px 14px; font-size: 0.8rem; }
+            .info-card .info-grid { grid-template-columns: 1fr; }
+            #cartesianCanvas { max-width: 280px; }
+            .input-area input { width: 100px; font-size: 0.9rem; }
+            .progresso-vitorias .estrela { font-size: 1.2rem; }
+            .chave-area input { width: 90px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎮 Jogo da Velha Cartesiana</h1>
+    <p class="subtitle">Digite as coordenadas para jogar! Aprenda o Plano Cartesiano!</p>
+
+    <div class="game-status" id="gameStatus">
+        <span class="badge badge-info">📝 APRENDIZAGEM</span>
+        Digite as coordenadas (x, y) para fazer sua jogada!
+        <span class="instrutor-indicador inativo" id="instrutorStatus">
+            🔒 Instrutor: Bloqueado
+        </span>
+    </div>
+
+    <div class="game-layout">
+        <div class="board-section">
+            <canvas id="cartesianCanvas" width="450" height="450"></canvas>
+
+            <div class="legend">
+                <span class="legend-item"><span class="dot dot-aluno"></span> Você (X)</span>
+                <span class="legend-item"><span class="dot dot-computador"></span> Computador (O)</span>
+                <span class="legend-item"><span class="dot dot-empty"></span> Disponível</span>
+                <span class="legend-item"><span class="dot dot-bloqueado"></span> Bloqueado</span>
+            </div>
+
+            <div class="progresso-vitorias" id="progressoVitorias">
+                <span class="estrela" id="estrela1">⭐</span>
+                <span class="estrela" id="estrela2">⭐</span>
+                <span class="estrela" id="estrela3">⭐</span>
+            </div>
+
+            <div class="quadrante-alvo" id="quadranteAlvo">
+                🎯 Jogue no quadrante: <span id="quadranteAtual">I (+,+)</span>
+            </div>
+        </div>
+        
+
+        <div class="info-panel">
+            <div class="info-card">
+                <h3>🎯 Digite as coordenadas</h3>
+                <div class="input-area">
+                    <label for="coordInput">(x, y):</label>
+                    <input type="text" id="coordInput" placeholder="ex: 1, -1" maxlength="10">
+                    <button class="btn btn-primary" id="btnAtirar">🚀 Jogar</button>
+                    <button class="btn btn-secondary" id="btnExemplo">📌 Exemplo</button>
+                </div>
+                 <!-- ===== CONTROLES (PROTEGIDOS) ===== -->
+            <div class="controles">
+                <button class="btn btn-primary" id="btnReiniciar">🔄 Novo Jogo</button>
+                <button class="btn btn-danger" id="btnReiniciarPlacar">🗑️ Zerar Placar</button>
+                <button class="btn btn-gray" id="btnDificuldade" disabled>🎯 Dificuldade: Médio</button>
+                <button class="btn btn-gray" id="btnDesbloquear" disabled>🔓 Forçar Desbloqueio</button>
+            </div>
+            <div style="text-align:center; font-size:0.7rem; color:#5a7a9a; margin-top:4px;">
+                🔒 Botões de instrutor bloqueados. Use a chave acima para liberar.
+            </div>
+                <div class="exemplo-coord">
+                    💡 Formato: <span>x, y</span> (ex: <span>1, -1</span>)
+                </div>
+                <div class="coords-hint" id="coordsHint">👆 Digite as coordenadas e clique em JOGAR</div>
+            </div>
+
+            <!-- ===== SISTEMA DE CHAVE DO INSTRUTOR ===== -->
+            <div class="info-card" style="border: 1px solid rgba(142, 68, 173, 0.3);">
+                <h3>🔐 Controle do Instrutor</h3>
+                <div class="chave-area">
+                    <label for="chaveInput">🔑 Chave:</label>
+                    <input type="password" id="chaveInput" placeholder="Digite a senha" maxlength="20">
+                    <button class="btn btn-purple" id="btnDesbloquearControles">🔓 Liberar</button>
+                    <button class="btn btn-danger" id="btnBloquearControles">🔒 Bloquear</button>
+                </div>
+                <!-- 
+                <div class="exemplo-coord" style="margin-top:4px;">
+                    💡 Chave padrão: <span>instrutor2024</span>
+                </div> -->
+                <div style="text-align:center; margin-top:4px; font-size:0.7rem; color:#5a7a9a;" id="chaveStatus">
+                    🔒 Controles bloqueados para alunos
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="scoreboard">
+                    <div class="score-item">
+                        <div class="label">🏆 Você</div>
+                        <div class="value aluno" id="scoreAluno">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">🤖 Computador</div>
+                        <div class="value computador" id="scoreComputador">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">🤝 Empates</div>
+                        <div class="value empate" id="scoreEmpate">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>📊 Status do Jogo</h3>
+                <div class="info-grid">
+                    <div class="info-item"><span class="label">Fase</span><span class="value" id="faseAtual">Aprendizagem</span></div>
+                    <div class="info-item"><span class="label">Vitórias para liberar</span><span class="value" id="vitoriasRestantes">3</span></div>
+                    <div class="info-item"><span class="label">Clique no canvas</span><span class="value" id="statusClique">🔒 Bloqueado</span></div>
+                    <div class="info-item"><span class="label">Jogadas no quadrante</span><span class="value" id="jogadasQuadrante">0</span></div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>📜 Últimas Jogadas</h3>
+                <div class="historico-lista" id="historicoLista">
+                    <span style="color: #5a7a9a; font-size:0.8rem;">Nenhuma jogada ainda</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ================================================================
+// JOGO DA VELHA CARTESIANA - COM CONTROLE DE INSTRUTOR
+// ================================================================
+
+// --- Elementos DOM ---
+const canvas = document.getElementById('cartesianCanvas');
+const ctx = canvas.getContext('2d');
+const gameStatus = document.getElementById('gameStatus');
+const coordsHint = document.getElementById('coordsHint');
+const scoreAluno = document.getElementById('scoreAluno');
+const scoreComputador = document.getElementById('scoreComputador');
+const scoreEmpate = document.getElementById('scoreEmpate');
+const historicoLista = document.getElementById('historicoLista');
+const coordInput = document.getElementById('coordInput');
+const quadranteAtual = document.getElementById('quadranteAtual');
+const faseAtual = document.getElementById('faseAtual');
+const vitoriasRestantes = document.getElementById('vitoriasRestantes');
+const statusClique = document.getElementById('statusClique');
+const jogadasQuadrante = document.getElementById('jogadasQuadrante');
+const instrutorStatus = document.getElementById('instrutorStatus');
+const chaveStatus = document.getElementById('chaveStatus');
+
+// --- Botões protegidos ---
+const btnDificuldade = document.getElementById('btnDificuldade');
+const btnDesbloquear = document.getElementById('btnDesbloquear');
+const btnReiniciar = document.getElementById('btnReiniciar');
+const btnReiniciarPlacar = document.getElementById('btnReiniciarPlacar');
+
+// --- Configurações ---
+const SIZE = 450;
+const MARGIN = 45;
+const CELL_SIZE = (SIZE - 2 * MARGIN) / 5;
+const GRID_SIZE = 5;
+const OFFSET = -2;
+
+const BOARD_POSITIONS = [
+    { x: -1, y: 1 },   // 0
+    { x: 0, y: 1 },    // 1
+    { x: 1, y: 1 },    // 2
+    { x: -1, y: 0 },   // 3
+    { x: 0, y: 0 },    // 4
+    { x: 1, y: 0 },    // 5
+    { x: -1, y: -1 },  // 6
+    { x: 0, y: -1 },   // 7
+    { x: 1, y: -1 }    // 8
+];
+
+const WINNING_COMBOS = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
+];
+
+const QUADRANTES = {
+    q1: { nome: 'I (+,+)', condicao: (x, y) => x > 0 && y > 0, cor: '#2ecc71' },
+    q2: { nome: 'II (-,+)', condicao: (x, y) => x < 0 && y > 0, cor: '#f1c40f' },
+    q3: { nome: 'III (-,-)', condicao: (x, y) => x < 0 && y < 0, cor: '#e74c3c' },
+    q4: { nome: 'IV (+,-)', condicao: (x, y) => x > 0 && y < 0, cor: '#3498db' }
+};
+
+const QUADRANTES_LISTA = ['q1', 'q2', 'q3', 'q4'];
+
+// --- Estado do Jogo ---
+let jogo = {
+    board: Array(9).fill(null),
+    gameOver: false,
+    currentPlayer: 'aluno',
+    scores: { aluno: 0, computador: 0, empate: 0 },
+    isComputerThinking: false,
+    
+    clickLiberado: false,
+    vitoriasNecessarias: 3,
+    vitoriasObtidas: 0,
+    quadranteAtual: 'q1',
+    jogadasQuadranteFeitas: 0,
+    jogadasQuadranteNecessarias: 3,
+    
+    historico: [],
+    jogadasAlunoCount: 0,
+    jogadasComputadorCount: 0,
+    
+    // ===== NOVO: CONTROLE DO INSTRUTOR =====
+    instrutorAtivo: false,
+    dificuldade: 'medio' // 'facil', 'medio', 'dificil'
+};
+
+// ================================================================
+// SISTEMA DE CHAVE DO INSTRUTOR
+// ================================================================
+
+const CHAVE_SECRETA = 'instrutor2024'; // Chave padrão - o instrutor pode alterar
+
+function verificarChave(chave) {
+    return chave === CHAVE_SECRETA;
+}
+
+function ativarModoInstrutor() {
+    jogo.instrutorAtivo = true;
+    
+    // Libera os botões
+    btnDificuldade.disabled = false;
+    btnDificuldade.className = 'btn btn-warning';
+    btnDesbloquear.disabled = false;
+    btnDesbloquear.className = 'btn btn-purple';
+    
+    // Atualiza indicadores
+    instrutorStatus.className = 'instrutor-indicador ativo';
+    instrutorStatus.innerHTML = '🔓 Instrutor: Ativo';
+    chaveStatus.textContent = '✅ Controles liberados para o instrutor!';
+    chaveStatus.style.color = '#2ecc71';
+    
+    coordsHint.textContent = '🔓 Modo Instrutor ativado! Você pode alterar configurações.';
+    
+    // Remove o estilo de bloqueio do input da chave
+    document.getElementById('chaveInput').className = 'correto';
+    
+    // Inicia temporizador para rebloqueio automático (5 minutos)
+    if (window.tempoInstrutor) clearTimeout(window.tempoInstrutor);
+    window.tempoInstrutor = setTimeout(() => {
+        desativarModoInstrutor();
+        coordsHint.textContent = '🔒 Modo Instrutor expirou por inatividade.';
+    }, 300000); // 5 minutos
+}
+
+function desativarModoInstrutor() {
+    jogo.instrutorAtivo = false;
+    
+    // Bloqueia os botões
+    btnDificuldade.disabled = true;
+    btnDificuldade.className = 'btn btn-gray';
+    btnDesbloquear.disabled = true;
+    btnDesbloquear.className = 'btn btn-gray';
+    
+    // Atualiza indicadores
+    instrutorStatus.className = 'instrutor-indicador inativo';
+    instrutorStatus.innerHTML = '🔒 Instrutor: Bloqueado';
+    chaveStatus.textContent = '🔒 Controles bloqueados para alunos';
+    chaveStatus.style.color = '#5a7a9a';
+    
+    document.getElementById('chaveInput').className = '';
+    document.getElementById('chaveInput').value = '';
+    
+    if (window.tempoInstrutor) {
+        clearTimeout(window.tempoInstrutor);
+        window.tempoInstrutor = null;
+    }
+}
+
+// ================================================================
+// FUNÇÕES DE CONVERSÃO E DESENHO (MANTIDAS)
+// ================================================================
+
+function cartesianToPixel(x, y) {
+    const px = MARGIN + ((x - OFFSET) / GRID_SIZE) * (SIZE - 2 * MARGIN);
+    const py = MARGIN + ((y - OFFSET) / GRID_SIZE) * (SIZE - 2 * MARGIN);
+    return { px, py };
+}
+
+function pixelToCartesian(px, py) {
+    const x = Math.round(((px - MARGIN) / (SIZE - 2 * MARGIN)) * GRID_SIZE + OFFSET);
+    const y = Math.round(((py - MARGIN) / (SIZE - 2 * MARGIN)) * GRID_SIZE + OFFSET);
+    if (x < -2 || x > 2 || y < -2 || y > 2) return null;
+    return { x, y };
+}
+
+function getBoardIndex(x, y) {
+    return BOARD_POSITIONS.findIndex(p => p.x === x && p.y === y);
+}
+
+function getQuadrante(x, y) {
+    if (x > 0 && y > 0) return 'q1';
+    if (x < 0 && y > 0) return 'q2';
+    if (x < 0 && y < 0) return 'q3';
+    if (x > 0 && y < 0) return 'q4';
+    return null;
+}
+
+function isInQuadrante(x, y, quadrante) {
+    return QUADRANTES[quadrante].condicao(x, y);
+}
+
+// ================================================================
+// DESENHO DO TABULEIRO (MANTIDO)
+// ================================================================
+
+function drawBoard() {
+    ctx.clearRect(0, 0, SIZE, SIZE);
+    ctx.fillStyle = '#0a1428';
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    // Grade
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.lineWidth = 0.5;
+    for (let i = -2; i <= 2; i++) {
+        const p1 = cartesianToPixel(i, -2.5);
+        const p2 = cartesianToPixel(i, 2.5);
+        ctx.beginPath();
+        ctx.moveTo(p1.px, p1.py);
+        ctx.lineTo(p2.px, p2.py);
+        ctx.stroke();
+        const p3 = cartesianToPixel(-2.5, i);
+        const p4 = cartesianToPixel(2.5, i);
+        ctx.beginPath();
+        ctx.moveTo(p3.px, p3.py);
+        ctx.lineTo(p4.px, p4.py);
+        ctx.stroke();
+    }
+
+    // Destaque do quadrante atual
+    if (!jogo.clickLiberado) {
+        const quad = jogo.quadranteAtual;
+        ctx.fillStyle = 'rgba(142, 68, 173, 0.05)';
+        for (let x = -2; x <= 2; x++) {
+            for (let y = -2; y <= 2; y++) {
+                if (isInQuadrante(x, y, quad)) {
+                    const p = cartesianToPixel(x, y);
+                    ctx.fillRect(p.px - CELL_SIZE/2, p.py - CELL_SIZE/2, CELL_SIZE, CELL_SIZE);
+                }
+            }
+        }
+    }
+
+    // Eixos
+    ctx.strokeStyle = '#4a7aaa';
+    ctx.lineWidth = 2;
+    const origin = cartesianToPixel(0, 0);
+    const xEnd = cartesianToPixel(2.5, 0);
+    const yEnd = cartesianToPixel(0, 2.5);
+    ctx.beginPath();
+    ctx.moveTo(cartesianToPixel(-2.5, 0).px, origin.py);
+    ctx.lineTo(xEnd.px, xEnd.py);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(origin.px, cartesianToPixel(0, -2.5).py);
+    ctx.lineTo(yEnd.px, yEnd.py);
+    ctx.stroke();
+
+    // Rótulos
+    ctx.fillStyle = '#6db3ff';
+    ctx.font = 'bold 12px "Segoe UI", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('X', xEnd.px + 8, xEnd.py - 4);
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('Y', yEnd.px + 8, yEnd.py + 4);
+
+    // Marcas
+    ctx.fillStyle = '#5a8ab5';
+    ctx.font = '9px "Segoe UI", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (let v = -2; v <= 2; v++) {
+        if (v === 0) continue;
+        const px = cartesianToPixel(v, 0).px;
+        const py = cartesianToPixel(0, v).py;
+        ctx.fillText(v, px, origin.py + 4);
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(v, origin.px + 4, py);
+        ctx.textBaseline = 'top';
+    }
+
+    // Origem
+    ctx.fillStyle = '#3498db';
+    ctx.shadowColor = 'rgba(52, 152, 219, 0.3)';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(origin.px, origin.py, 4, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#8ab4f8';
+    ctx.font = 'bold 10px "Segoe UI", sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.fillText('O', origin.px - 10, origin.py + 4);
+
+    // Células
+    for (let x = -2; x <= 2; x++) {
+        for (let y = -2; y <= 2; y++) {
+            const index = getBoardIndex(x, y);
+            if (index === -1) continue;
+            const pixel = cartesianToPixel(x, y);
+            const cx = pixel.px - CELL_SIZE / 2;
+            const cy = pixel.py - CELL_SIZE / 2;
+
+            ctx.fillStyle = 'rgba(20, 40, 80, 0.2)';
+            ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
+
+            const isOcupada = jogo.board[index] !== null;
+            const isBloqueada = !jogo.clickLiberado && !isInQuadrante(x, y, jogo.quadranteAtual) && !isOcupada;
+
+            if (isBloqueada) {
+                ctx.fillStyle = 'rgba(142, 68, 173, 0.15)';
+                ctx.fillRect(cx + 2, cy + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+                ctx.strokeStyle = 'rgba(142, 68, 173, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.strokeRect(cx + 2, cy + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(142, 68, 173, 0.2)';
+                ctx.font = '16px "Segoe UI", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🔒', pixel.px, pixel.py);
+            }
+
+            if (jogo.board[index] === 'aluno') {
+                ctx.fillStyle = 'rgba(46, 204, 113, 0.15)';
+                ctx.fillRect(cx + 2, cy + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+                ctx.strokeStyle = '#2ecc71';
+                ctx.lineWidth = 2.5;
+                ctx.strokeRect(cx + 2, cy + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+                ctx.strokeStyle = '#2ecc71';
+                ctx.lineWidth = 3;
+                ctx.shadowColor = 'rgba(46, 204, 113, 0.3)';
+                ctx.shadowBlur = 8;
+                const d = CELL_SIZE * 0.25;
+                ctx.beginPath();
+                ctx.moveTo(pixel.px - d, pixel.py - d);
+                ctx.lineTo(pixel.px + d, pixel.py + d);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pixel.px + d, pixel.py - d);
+                ctx.lineTo(pixel.px - d, pixel.py + d);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            } else if (jogo.board[index] === 'computador') {
+                ctx.fillStyle = 'rgba(231, 76, 60, 0.15)';
+                ctx.fillRect(cx + 2, cy + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2.5;
+                ctx.strokeRect(cx + 2, cy + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+                ctx.shadowColor = 'rgba(231, 76, 60, 0.3)';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(pixel.px, pixel.py, CELL_SIZE * 0.2, 0, 2 * Math.PI);
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
+            if (jogo.board[index] === null && !isBloqueada) {
+                ctx.fillStyle = 'rgba(90, 122, 154, 0.2)';
+                ctx.font = '7px "Segoe UI", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`(${x},${y})`, pixel.px, pixel.py + CELL_SIZE/2 - 2);
+            }
+        }
+    }
+
+    // Linhas do Jogo da Velha
+    ctx.strokeStyle = 'rgba(90, 122, 154, 0.4)';
+    ctx.lineWidth = 2;
+    for (let i = -0.5; i <= 0.5; i += 1) {
+        const p1 = cartesianToPixel(i, -1.5);
+        const p2 = cartesianToPixel(i, 1.5);
+        ctx.beginPath();
+        ctx.moveTo(p1.px, p1.py);
+        ctx.lineTo(p2.px, p2.py);
+        ctx.stroke();
+        const p3 = cartesianToPixel(-1.5, i);
+        const p4 = cartesianToPixel(1.5, i);
+        ctx.beginPath();
+        ctx.moveTo(p3.px, p3.py);
+        ctx.lineTo(p4.px, p4.py);
+        ctx.stroke();
+    }
+
+    // Overlay de Fim de Jogo
+    if (jogo.gameOver) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.fillRect(0, 0, SIZE, SIZE);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 24px "Segoe UI", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const winner = checkWinner();
+        let msg = '';
+        if (winner === 'aluno') msg = '🎉 Você Venceu!';
+        else if (winner === 'computador') msg = '🤖 Computador Venceu!';
+        else if (winner === 'empate') msg = '🤝 Empate!';
+        if (msg) {
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+            ctx.shadowBlur = 20;
+            ctx.fillText(msg, SIZE/2, SIZE/2 - 10);
+            ctx.shadowBlur = 0;
+        }
+    }
+}
+
+// ================================================================
+// FUNÇÕES DE JOGO (MANTIDAS)
+// ================================================================
+
+function checkWinner() {
+    for (const combo of WINNING_COMBOS) {
+        const [a, b, c] = combo;
+        if (jogo.board[a] && jogo.board[a] === jogo.board[b] && jogo.board[a] === jogo.board[c]) {
+            return jogo.board[a];
+        }
+    }
+    if (jogo.board.every(cell => cell !== null)) return 'empate';
+    return null;
+}
+
+function isGameOver() {
+    const result = checkWinner();
+    if (result) {
+        jogo.gameOver = true;
+        if (result === 'aluno') {
+            jogo.scores.aluno++;
+            jogo.vitoriasObtidas++;
+            if (jogo.vitoriasObtidas >= jogo.vitoriasNecessarias) {
+                jogo.clickLiberado = true;
+                gameStatus.innerHTML = '🎉 <span class="badge badge-success">🔓 CLIQUE LIBERADO!</span> Agora você pode clicar no gráfico!';
+                statusClique.textContent = '✅ Liberado!';
+                statusClique.style.color = '#2ecc71';
+                canvas.classList.remove('clique-bloqueado');
+            } else {
+                gameStatus.innerHTML = `🎉 <span class="badge badge-success">VITÓRIA!</span> Faltam ${jogo.vitoriasNecessarias - jogo.vitoriasObtidas} vitórias para liberar o clique!`;
+                sortearNovoQuadrante();
+            }
+        } else if (result === 'computador') {
+            jogo.scores.computador++;
+            gameStatus.innerHTML = '😅 <span class="badge badge-computador">DERROTA!</span> Tente novamente!';
+        } else if (result === 'empate') {
+            jogo.scores.empate++;
+            gameStatus.innerHTML = '🤝 <span class="badge badge-empate">EMPATE!</span> Ninguém ganhou dessa vez.';
+        }
+        updateScoreboard();
+        atualizarProgresso();
+        drawBoard();
+        return true;
+    }
+    return false;
+}
+
+function sortearNovoQuadrante() {
+    const disponiveis = QUADRANTES_LISTA.filter(q => q !== jogo.quadranteAtual);
+    jogo.quadranteAtual = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+    jogo.jogadasQuadranteFeitas = 0;
+    quadranteAtual.textContent = QUADRANTES[jogo.quadranteAtual].nome;
+    quadranteAtual.style.color = QUADRANTES[jogo.quadranteAtual].cor;
+    gameStatus.innerHTML += ` 🎯 Agora jogue no quadrante ${QUADRANTES[jogo.quadranteAtual].nome}!`;
+    coordsHint.textContent = `📝 Digite coordenadas no quadrante ${QUADRANTES[jogo.quadranteAtual].nome}`;
+}
+
+function atualizarProgresso() {
+    for (let i = 1; i <= 3; i++) {
+        const estrela = document.getElementById(`estrela${i}`);
+        if (i <= jogo.vitoriasObtidas) {
+            estrela.className = 'estrela ativa';
+        } else {
+            estrela.className = 'estrela';
+        }
+    }
+    vitoriasRestantes.textContent = Math.max(0, jogo.vitoriasNecessarias - jogo.vitoriasObtidas);
+    if (jogo.clickLiberado) {
+        statusClique.textContent = '✅ Liberado!';
+        statusClique.style.color = '#2ecc71';
+        faseAtual.textContent = '🎯 Livre';
+    } else {
+        statusClique.textContent = '🔒 Bloqueado';
+        statusClique.style.color = '#e74c3c';
+        faseAtual.textContent = '📝 Aprendizagem';
+    }
+    jogadasQuadrante.textContent = jogo.jogadasQuadranteFeitas;
+}
+
+function updateScoreboard() {
+    scoreAluno.textContent = jogo.scores.aluno;
+    scoreComputador.textContent = jogo.scores.computador;
+    scoreEmpate.textContent = jogo.scores.empate;
+}
+
+function adicionarHistorico(coord, resultado, jogador) {
+    let classe = 'erro';
+    let emoji = '❌';
+    let texto = 'Errou';
+    
+    if (resultado === 'acertou') {
+        classe = 'acerto';
+        emoji = '✅';
+        texto = 'Acertou';
+    } else if (resultado === 'passou') {
+        classe = 'passou';
+        emoji = '⏭️';
+        texto = 'Passou a vez';
+    }
+    
+    const nome = jogador === 'aluno' ? 'Você' : 'PC';
+    
+    const html = `<div class="h-item ${classe}"><span>${nome}: ${coord}</span><span>${emoji} ${texto}</span></div>`;
+    historicoLista.innerHTML = html + historicoLista.innerHTML;
+    if (historicoLista.children.length > 10) historicoLista.removeChild(historicoLista.lastChild);
+}
+
+// ================================================================
+// JOGADA DO COMPUTADOR (COM DIFICULDADE)
+// ================================================================
+
+function computerMove() {
+    if (jogo.isComputerThinking || jogo.gameOver) return;
+    jogo.isComputerThinking = true;
+    canvas.classList.add('disabled');
+    gameStatus.innerHTML = '<span class="badge badge-pensando">🤖 PENSANDO</span> Computador está analisando...';
+
+    setTimeout(() => {
+        if (jogo.gameOver) {
+            jogo.isComputerThinking = false;
+            canvas.classList.remove('disabled');
+            return;
+        }
+
+        const available = jogo.board.map((cell, index) => cell === null ? index : null).filter(i => i !== null);
+        if (available.length === 0) {
+            jogo.isComputerThinking = false;
+            canvas.classList.remove('disabled');
+            isGameOver();
+            return;
+        }
+
+        let chosenIndex = null;
+
+        // ==========================================================
+        // DIFICULDADE: FÁCIL (ALEATÓRIO)
+        // ==========================================================
+        if (jogo.dificuldade === 'facil') {
+            chosenIndex = available[Math.floor(Math.random() * available.length)];
+        }
+
+        // ==========================================================
+        // DIFICULDADE: MÉDIO (ESTRATÉGIA BÁSICA)
+        // ==========================================================
+        else if (jogo.dificuldade === 'medio') {
+            // Estratégia 1: Vencer
+            for (const combo of WINNING_COMBOS) {
+                const [a, b, c] = combo;
+                const values = [jogo.board[a], jogo.board[b], jogo.board[c]];
+                const countPC = values.filter(v => v === 'computador').length;
+                const countEmpty = values.filter(v => v === null).length;
+                if (countPC === 2 && countEmpty === 1) {
+                    for (const idx of combo) {
+                        if (jogo.board[idx] === null) {
+                            chosenIndex = idx;
+                            break;
+                        }
+                    }
+                    if (chosenIndex !== null) break;
+                }
+            }
+
+            // Estratégia 2: Bloquear
+            if (chosenIndex === null) {
+                for (const combo of WINNING_COMBOS) {
+                    const [a, b, c] = combo;
+                    const values = [jogo.board[a], jogo.board[b], jogo.board[c]];
+                    const countAluno = values.filter(v => v === 'aluno').length;
+                    const countEmpty = values.filter(v => v === null).length;
+                    if (countAluno === 2 && countEmpty === 1) {
+                        for (const idx of combo) {
+                            if (jogo.board[idx] === null) {
+                                chosenIndex = idx;
+                                break;
+                            }
+                        }
+                        if (chosenIndex !== null) break;
+                    }
+                }
+            }
+
+            // Estratégia 3: Centro
+            if (chosenIndex === null && jogo.board[4] === null) {
+                chosenIndex = 4;
+            }
+
+            // Estratégia 4: Aleatório
+            if (chosenIndex === null) {
+                chosenIndex = available[Math.floor(Math.random() * available.length)];
+            }
+        }
+
+        // ==========================================================
+        // DIFICULDADE: DIFÍCIL (MINIMAX - IMPLEMENTAÇÃO SIMPLIFICADA)
+        // ==========================================================
+        else if (jogo.dificuldade === 'dificil') {
+            // Usa Minimax para escolher a melhor jogada
+            // Simplificado: tenta encontrar a melhor jogada
+            let melhorScore = -Infinity;
+            let melhorIndex = null;
+            
+            for (const idx of available) {
+                let score = 0;
+                
+                // Verifica se pode vencer
+                for (const combo of WINNING_COMBOS) {
+                    if (combo.includes(idx)) {
+                        const others = combo.filter(i => i !== idx);
+                        const countPC = others.filter(i => jogo.board[i] === 'computador').length;
+                        const countAluno = others.filter(i => jogo.board[i] === 'aluno').length;
+                        if (countPC === 2) score += 100;
+                        if (countAluno === 2) score += 50;
+                        if (countPC === 1) score += 5;
+                        if (countAluno === 1) score += 3;
+                    }
+                }
+                
+                // Centro é estratégico
+                if (idx === 4) score += 10;
+                // Cantos são bons
+                if ([0, 2, 6, 8].includes(idx)) score += 5;
+                
+                if (score > melhorScore) {
+                    melhorScore = score;
+                    melhorIndex = idx;
+                }
+            }
+            
+            chosenIndex = melhorIndex;
+            
+            // Se não encontrou, usa aleatório
+            if (chosenIndex === null) {
+                chosenIndex = available[Math.floor(Math.random() * available.length)];
+            }
+        }
+
+        // ==========================================================
+        // EXECUTAR JOGADA
+        // ==========================================================
+        if (chosenIndex !== null) {
+            jogo.board[chosenIndex] = 'computador';
+            jogo.jogadasComputadorCount++;
+            
+            const pos = BOARD_POSITIONS[chosenIndex];
+            adicionarHistorico(`(${pos.x}, ${pos.y})`, 'errou', 'computador');
+
+            if (!isGameOver()) {
+                jogo.currentPlayer = 'aluno';
+                gameStatus.innerHTML = '🎯 Sua vez! Digite as coordenadas.';
+                canvas.classList.remove('disabled');
+            } else {
+                canvas.classList.remove('disabled');
+            }
+            drawBoard();
+        }
+
+        jogo.isComputerThinking = false;
+    }, 600);
+}
+
+// ================================================================
+// JOGADA DO ALUNO (COM REGRA: POSIÇÃO OCUPADA → PASSA A VEZ)
+// ================================================================
+
+function jogadaAluno(x, y) {
+    if (jogo.gameOver) {
+        coordsHint.textContent = '⚠️ O jogo já acabou! Clique em "Novo Jogo".';
+        return false;
+    }
+
+    if (jogo.currentPlayer !== 'aluno') {
+        coordsHint.textContent = '⏳ Aguarde a vez do computador...';
+        return false;
+    }
+
+    if (jogo.isComputerThinking) {
+        coordsHint.textContent = '⏳ Aguarde o computador terminar...';
+        return false;
+    }
+
+    const index = getBoardIndex(x, y);
+    if (index === -1) {
+        coordsHint.textContent = `⚠️ Posição (${x}, ${y}) não existe! Use valores entre -2 e 2.`;
+        return false;
+    }
+
+    // ============================================================
+    // REGRA: POSIÇÃO OCUPADA → PASSA A VEZ
+    // ============================================================
+    if (jogo.board[index] !== null) {
+        coordsHint.textContent = `⚠️ Posição (${x}, ${y}) já está ocupada! Vez passada para o computador.`;
+        
+        adicionarHistorico(`(${x}, ${y})`, 'passou', 'aluno');
+        gameStatus.innerHTML = '⏭️ <span class="badge badge-warning">VEZ PASSADA</span> Posição ocupada!';
+        
+        jogo.currentPlayer = 'computador';
+        drawBoard();
+        
+        setTimeout(() => {
+            computerMove();
+        }, 300);
+        
+        return false;
+    }
+
+    // Verifica quadrante (comentado - liberado)
+    /*
+    if (!jogo.clickLiberado) {
+        if (!isInQuadrante(x, y, jogo.quadranteAtual)) {
+            coordsHint.textContent = `⚠️ Você deve jogar no quadrante ${QUADRANTES[jogo.quadranteAtual].nome}! (${x}, ${y}) não está lá.`;
+            return false;
+        }
+        jogo.jogadasQuadranteFeitas++;
+    }
+    */
+
+    // Executa a jogada
+    jogo.board[index] = 'aluno';
+    jogo.jogadasAlunoCount++;
+    adicionarHistorico(`(${x}, ${y})`, 'acertou', 'aluno');
+    coordsHint.textContent = `✅ Jogada em (${x}, ${y}) registrada!`;
+
+    drawBoard();
+
+    if (!isGameOver()) {
+        jogo.currentPlayer = 'computador';
+        gameStatus.innerHTML = '🤖 Vez do computador...';
+        setTimeout(() => {
+            computerMove();
+        }, 300);
+    }
+    return true;
+}
+
+function processarEntrada() {
+    if (jogo.gameOver) {
+        coordsHint.textContent = '⚠️ O jogo acabou! Clique em "Novo Jogo" para recomeçar.';
+        return;
+    }
+
+    if (jogo.currentPlayer !== 'aluno') {
+        coordsHint.textContent = '⏳ Aguarde a vez do computador...';
+        return;
+    }
+
+    const texto = coordInput.value.trim();
+    if (!texto) {
+        coordsHint.textContent = '⚠️ Digite as coordenadas no formato "x, y" (ex: 1, -1)';
+        return;
+    }
+
+    let partes = texto.replace(/\s/g, '').split(',').filter(p => p !== '');
+    if (partes.length < 2) {
+        partes = texto.split(/\s+/).filter(p => p !== '');
+    }
+
+    if (partes.length < 2) {
+        coordsHint.textContent = '⚠️ Formato inválido! Use "x, y" (ex: 1, -1)';
+        return;
+    }
+
+    const x = parseFloat(partes[0]);
+    const y = parseFloat(partes[1]);
+
+    if (isNaN(x) || isNaN(y) || !Number.isInteger(x) || !Number.isInteger(y)) {
+        coordsHint.textContent = '⚠️ Use números inteiros! (ex: 1, -1)';
+        return;
+    }
+
+    if (x < -2 || x > 2 || y < -2 || y > 2) {
+        coordsHint.textContent = `⚠️ Coordenadas devem estar entre -2 e 2! Você digitou (${x}, ${y})`;
+        return;
+    }
+
+    coordsHint.textContent = `🎯 Jogando em (${x}, ${y})...`;
+    coordInput.value = '';
+    jogadaAluno(x, y);
+}
+
+// ================================================================
+// EVENTOS
+// ================================================================
+
+document.getElementById('btnAtirar').addEventListener('click', processarEntrada);
+coordInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') processarEntrada();
+});
+
+document.getElementById('btnExemplo').addEventListener('click', function() {
+    if (jogo.gameOver || jogo.currentPlayer !== 'aluno') return;
+    
+    const exemplos = [];
+    if (!jogo.clickLiberado) {
+        for (let x = -2; x <= 2; x++) {
+            for (let y = -2; y <= 2; y++) {
+                if (isInQuadrante(x, y, jogo.quadranteAtual)) {
+                    const index = getBoardIndex(x, y);
+                    if (jogo.board[index] === null) {
+                        exemplos.push(`${x}, ${y}`);
+                    }
+                }
+            }
+        }
+    } else {
+        for (let x = -2; x <= 2; x++) {
+            for (let y = -2; y <= 2; y++) {
+                const index = getBoardIndex(x, y);
+                if (jogo.board[index] === null) {
+                    exemplos.push(`${x}, ${y}`);
+                }
+            }
+        }
+    }
+    
+    if (exemplos.length === 0) {
+        coordsHint.textContent = '⚠️ Nenhuma posição disponível!';
+        return;
+    }
+    
+    const ex = exemplos[Math.floor(Math.random() * exemplos.length)];
+    coordInput.value = ex;
+    coordsHint.textContent = `📌 Exemplo: ${ex} → Clique em JOGAR`;
+    coordInput.focus();
+});
+
+// ================================================================
+// SISTEMA DE CHAVE DO INSTRUTOR - EVENTOS
+// ================================================================
+
+document.getElementById('btnDesbloquearControles').addEventListener('click', function() {
+    const chave = document.getElementById('chaveInput').value.trim();
+    const inputChave = document.getElementById('chaveInput');
+    
+    if (verificarChave(chave)) {
+        ativarModoInstrutor();
+        inputChave.className = 'correto';
+        setTimeout(() => {
+            inputChave.className = '';
+        }, 2000);
+    } else {
+        inputChave.className = 'errado';
+        chaveStatus.textContent = '❌ Chave incorreta! Tente novamente.';
+        chaveStatus.style.color = '#e74c3c';
+        setTimeout(() => {
+            inputChave.className = '';
+            chaveStatus.textContent = '🔒 Controles bloqueados para alunos';
+            chaveStatus.style.color = '#5a7a9a';
+        }, 3000);
+    }
+});
+
+document.getElementById('btnBloquearControles').addEventListener('click', function() {
+    if (jogo.instrutorAtivo) {
+        desativarModoInstrutor();
+        coordsHint.textContent = '🔒 Controles bloqueados pelo instrutor.';
+    }
+});
+
+// Enter na chave também libera
+document.getElementById('chaveInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('btnDesbloquearControles').click();
+    }
+});
+
+// ================================================================
+// CONTROLE DE DIFICULDADE (PROTEGIDO)
+// ================================================================
+
+document.getElementById('btnDificuldade').addEventListener('click', function() {
+    if (!jogo.instrutorAtivo) {
+        coordsHint.textContent = '🔒 Apenas o instrutor pode alterar a dificuldade!';
+        return;
+    }
+    
+    const niveis = ['facil', 'medio', 'dificil'];
+    const labels = ['🎯 Fácil', '🎯 Médio', '🎯 Difícil'];
+    const idx = niveis.indexOf(jogo.dificuldade);
+    const nextIdx = (idx + 1) % niveis.length;
+    jogo.dificuldade = niveis[nextIdx];
+    this.innerHTML = labels[nextIdx];
+    coordsHint.textContent = `🎯 Dificuldade alterada para ${labels[nextIdx].replace('🎯 ', '')}`;
+    gameStatus.innerHTML = `🎯 <span class="badge badge-warning">DIFICULDADE</span> ${labels[nextIdx]}`;
+    
+    setTimeout(() => {
+        gameStatus.innerHTML = '🎯 Sua vez! Digite as coordenadas.';
+    }, 3000);
+});
+
+// ================================================================
+// FORÇAR DESBLOQUEIO (PROTEGIDO)
+// ================================================================
+
+document.getElementById('btnDesbloquear').addEventListener('click', function() {
+    if (!jogo.instrutorAtivo) {
+        coordsHint.textContent = '🔒 Apenas o instrutor pode forçar desbloqueio!';
+        return;
+    }
+    
+    if (!jogo.clickLiberado) {
+        jogo.vitoriasObtidas = jogo.vitoriasNecessarias;
+        jogo.clickLiberado = true;
+        canvas.classList.remove('clique-bloqueado');
+        statusClique.textContent = '✅ Liberado!';
+        statusClique.style.color = '#2ecc71';
+        faseAtual.textContent = '🎯 Livre';
+        gameStatus.innerHTML = '🔓 <span class="badge badge-success">CLIQUE LIBERADO!</span> Pelo instrutor!';
+        coordsHint.textContent = '👆 Clique no gráfico ou digite as coordenadas';
+        atualizarProgresso();
+        resetGame();
+    } else {
+        coordsHint.textContent = 'ℹ️ O clique já está liberado!';
+    }
+});
+
+// ================================================================
+// REINICIAR JOGO (NORMAL)
+// ================================================================
+
+function resetGame() {
+    jogo.board = Array(9).fill(null);
+    jogo.gameOver = false;
+    jogo.currentPlayer = 'aluno';
+    jogo.isComputerThinking = false;
+    jogo.historico = [];
+    jogo.jogadasAlunoCount = 0;
+    jogo.jogadasComputadorCount = 0;
+    jogo.jogadasQuadranteFeitas = 0;
+    
+    if (!jogo.clickLiberado) {
+        sortearNovoQuadrante();
+    }
+    
+    historicoLista.innerHTML = '<span style="color: #5a7a9a; font-size:0.8rem;">Nenhuma jogada ainda</span>';
+    canvas.classList.remove('disabled');
+    canvas.classList.remove('clique-bloqueado');
+    
+    if (jogo.clickLiberado) {
+        statusClique.textContent = '✅ Liberado!';
+        statusClique.style.color = '#2ecc71';
+        faseAtual.textContent = '🎯 Livre';
+    } else {
+        statusClique.textContent = '🔒 Bloqueado';
+        statusClique.style.color = '#e74c3c';
+        faseAtual.textContent = '📝 Aprendizagem';
+    }
+    
+    gameStatus.innerHTML = jogo.clickLiberado ? 
+        '🎯 Sua vez! Clique no gráfico ou digite as coordenadas.' :
+        `🎯 Sua vez! Digite coordenadas no quadrante ${QUADRANTES[jogo.quadranteAtual].nome}`;
+    coordsHint.textContent = jogo.clickLiberado ? 
+        '👆 Clique no gráfico ou digite as coordenadas' :
+        `📝 Digite coordenadas no quadrante ${QUADRANTES[jogo.quadranteAtual].nome}`;
+    
+    if (!jogo.clickLiberado) {
+        canvas.classList.add('clique-bloqueado');
+    }
+    
+    atualizarProgresso();
+    drawBoard();
+    coordInput.value = '';
+    coordInput.focus();
+}
+
+document.getElementById('btnReiniciar').addEventListener('click', resetGame);
+
+// ================================================================
+// REINICIAR PLACAR
+// ================================================================
+
+function resetScore() {
+    jogo.scores = { aluno: 0, computador: 0, empate: 0 };
+    jogo.vitoriasObtidas = 0;
+    jogo.clickLiberado = false;
+    jogo.quadranteAtual = 'q1';
+    jogo.jogadasQuadranteFeitas = 0;
+    quadranteAtual.textContent = QUADRANTES['q1'].nome;
+    quadranteAtual.style.color = QUADRANTES['q1'].cor;
+    canvas.classList.add('clique-bloqueado');
+    statusClique.textContent = '🔒 Bloqueado';
+    statusClique.style.color = '#e74c3c';
+    faseAtual.textContent = '📝 Aprendizagem';
+    updateScoreboard();
+    resetGame();
+}
+
+document.getElementById('btnReiniciarPlacar').addEventListener('click', resetScore);
+
+// ================================================================
+// CLIQUE NO CANVAS (COM PASSAGEM DE VEZ)
+// ================================================================
+
+canvas.addEventListener('click', function(e) {
+    if (!jogo.clickLiberado) {
+        coordsHint.textContent = '🔒 Clique bloqueado! Digite as coordenadas para jogar.';
+        return;
+    }
+    if (jogo.gameOver || jogo.currentPlayer !== 'aluno' || jogo.isComputerThinking) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const px = (e.clientX - rect.left) * scaleX;
+    const py = (e.clientY - rect.top) * scaleY;
+
+    const coords = pixelToCartesian(px, py);
+    if (!coords) {
+        coordsHint.textContent = '⚠️ Clique em uma posição válida (-2 a 2)';
+        return;
+    }
+
+    const index = getBoardIndex(coords.x, coords.y);
+    if (index === -1 || jogo.board[index] !== null) {
+        coordsHint.textContent = `⚠️ Posição (${coords.x}, ${coords.y}) já está ocupada! Vez passada.`;
+        adicionarHistorico(`(${coords.x}, ${coords.y})`, 'passou', 'aluno');
+        jogo.currentPlayer = 'computador';
+        gameStatus.innerHTML = '⏭️ <span class="badge badge-warning">VEZ PASSADA</span> Posição ocupada!';
+        drawBoard();
+        setTimeout(() => {
+            computerMove();
+        }, 300);
+        return;
+    }
+
+    coordsHint.textContent = `🎯 Você clicou em (${coords.x}, ${coords.y})`;
+    jogadaAluno(coords.x, coords.y);
+});
+
+// --- Touch ---
+canvas.addEventListener('touchstart', function(e) {
+    if (!jogo.clickLiberado) {
+        coordsHint.textContent = '🔒 Clique bloqueado! Digite as coordenadas para jogar.';
+        return;
+    }
+    e.preventDefault();
+    const touch = e.touches[0];
+    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+    canvas.dispatchEvent(new MouseEvent('click', fakeEvent));
+}, { passive: false });
+
+// ================================================================
+// INICIALIZAÇÃO
+// ================================================================
+
+function init() {
+    jogo.quadranteAtual = 'q1';
+    quadranteAtual.textContent = QUADRANTES['q1'].nome;
+    quadranteAtual.style.color = QUADRANTES['q1'].cor;
+    canvas.classList.add('clique-bloqueado');
+    resetGame();
+    updateScoreboard();
+    atualizarProgresso();
+    
+    // Garantir que os botões começam bloqueados
+    desativarModoInstrutor();
+    
+    console.log('🧠 Jogo da Velha Cartesiana - Modo Aprendizagem');
+    console.log('📝 Digite as coordenadas para jogar!');
+    console.log('🔐 Chave do instrutor: "instrutor2024"');
+    console.log('🎯 Complete 3 vitórias para liberar o clique no canvas!');
+}
+
+init();
+</script>
+</body>
+</html>
