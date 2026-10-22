@@ -105,7 +105,7 @@ jogo-da-velha-cartesiano/<br>
 
 1. Faça um fork deste repositório
 2. Ative o GitHub Pages nas configurações
-3. Acesse `https://seu-usuario.github.io/jogo-da-velha-cartesiano`
+3. Acesse: https://pedrohms11.github.io/JogoDaVelhaCartesiana/
 
 ### Opção 3: Servidor local
 
