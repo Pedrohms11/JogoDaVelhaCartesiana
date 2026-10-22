@@ -86,3 +86,112 @@ O projeto foi pensado para o **ensino técnico em robótica e desenvolvimento de
 ---
 
 ## 📁 Estrutura do Projeto
+jogo-da-velha-cartesiano/<br>
+├── index.html # Arquivo principal (tudo em um único arquivo)<br>
+├── README.md # Este arquivo<br>
+└── LICENSE # Licença MIT<br>
+
+---
+
+## 🛠️ Como Usar
+
+### Opção 1: Abrir diretamente no navegador
+
+1. Baixe o arquivo `index.html`
+2. Abra-o em qualquer navegador moderno (Chrome, Firefox, Edge, etc.)
+3. Comece a jogar!
+
+### Opção 2: Hospedar no GitHub Pages
+
+1. Faça um fork deste repositório
+2. Ative o GitHub Pages nas configurações
+3. Acesse `https://seu-usuario.github.io/jogo-da-velha-cartesiano`
+
+### Opção 3: Servidor local
+
+```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/jogo-da-velha-cartesiano.git
+
+# Navegue até o diretório
+cd jogo-da-velha-cartesiano
+
+# Abra o arquivo no navegador
+```
+## Habilidades Desenvolvidas
+✅ Localização de pontos no plano cartesiano
+
+✅ Identificação de quadrantes
+
+✅ Leitura e escrita de coordenadas (x, y)
+
+✅ Pensamento estratégico
+
+✅ Resolução de problemas
+
+✅ Lógica de programação
+
+## 🔐 Chave do Instrutor
+A chave padrão é instrutor2024 (pode ser alterada no código).
+
+O que a chave libera:
+
+🎯 Botão de Dificuldade (Fácil / Médio / Difícil)
+
+🔓 Botão Forçar Desbloqueio (libera o clique sem precisar das 3 vitórias)
+
+Tempo de sessão: 5 minutos (após isso, os botões são bloqueados novamente)
+
+## 🌟 Destaques do Projeto
+Design Responsivo: Funciona em desktop, tablet e smartphone
+
+Acessibilidade: ARIA labels e navegação por teclado
+
+Interatividade: Digitação de coordenadas, clique, feedback em tempo real
+
+Conteúdo Didático: Ensina coordenadas, quadrantes e lógica de jogo
+
+Código Limpo: Bem comentado e organizado
+
+Proteção para Instrutor: Botões sensíveis protegidos por chave
+## 📄 Licença
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+## 👨‍🏫 Autor
+Pedro Moura
+
+📧 Email: Pedro.moura@fiemg.com.br
+
+🎓 Professor de Desenvolvimento de Sistemas
+
+🤖 Especialista em Robótica Educacional
+
+## 🙏 Agradecimentos
+Font Awesome - Ícones (se utilizados)
+
+GitHub Pages - Hospedagem gratuita
+
+Todos os alunos que testaram e deram feedback!
+
+## 🐛 Reportar Problemas
+Encontrou um bug? Abra uma issue no GitHub.
+
+## ⭐ Como Contribuir
+Faça um fork do projeto
+
+Crie sua branch (git checkout -b feature/AmazingFeature)
+
+Commit suas mudanças (git commit -m 'Add some AmazingFeature')
+
+Push para a branch (git push origin feature/AmazingFeature)
+
+Abra um Pull Request
+
+## 📞 Contato
+Para dúvidas, sugestões ou colaborações:
+
+📧 Email: Pedro.moura@fiemg.com.br
+
+
+
+
+
