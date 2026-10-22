@@ -86,11 +86,12 @@ O projeto foi pensado para o **ensino técnico em robótica e desenvolvimento de
 ---
 
 ## 📁 Estrutura do Projeto
+```
 jogo-da-velha-cartesiano/<br>
 ├── index.html # Arquivo principal (tudo em um único arquivo)<br>
 ├── README.md # Este arquivo<br>
 └── LICENSE # Licença MIT<br>
-
+```
 ---
 
 ## 🛠️ Como Usar
