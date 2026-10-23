@@ -80,7 +80,7 @@ O projeto foi pensado para o **ensino técnico em robótica e desenvolvimento de
 |------------|-----------|
 | **HTML5** | Estrutura semântica da página |
 | **CSS3** | Estilização, responsividade e animações |
-| **JavaScript ** | Lógica do jogo e interatividade |
+| **JavaScript** | Lógica do jogo e interatividade |
 | **Canvas API** | Renderização do tabuleiro cartesiano |
 
 ---
