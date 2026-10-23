@@ -11,7 +11,7 @@
 
 ## 📖 Sobre o Projeto
 
-Este é um **Jogo da Velha Cartesiano** desenvolvido para ensinar coordenadas, quadrantes e lógica de programação de forma lúdica. O jogo desafia o aluno a **digitar coordenadas (x, y)** para fazer suas jogadas, com um sistema progressivo que libera o uso do mouse apenas após **3 vitórias** contra o computador.
+Este é um **Jogo da Velha Cartesiano** desenvolvido durante o programa de estágio para ensinar coordenadas, quadrantes e lógica de programação de forma lúdica. O jogo desafia o aluno a **digitar coordenadas (x, y)** para fazer suas jogadas, com um sistema progressivo que libera o uso do mouse apenas após **3 vitórias** contra o computador.
 
 O projeto foi pensado para o **ensino técnico em robótica e desenvolvimento de sistemas**, conectando conceitos matemáticos com aplicações práticas.
 
